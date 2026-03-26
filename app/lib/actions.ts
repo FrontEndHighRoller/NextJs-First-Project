@@ -11,13 +11,19 @@ const sql = postgres(process.env.POSTGRES_URL!, {
 
 const FormSchema = z.object({
   id: z.string(),
-  customerId: z.string({
-    invalid_type_error: "Please select a customer.",
-  }),
+  customerId: z
+    .string({
+      invalid_type_error: "Please select a customer.",
+    })
+    .min(1, { message: "Please select a customer." }), // 👈 catches empty string
   amount: z.coerce.number().gt(0, {
     message: "Please enter an amount greater than $0.",
   }),
-  status: z.enum(["pending", "paid"]),
+  status: z.enum(["pending", "paid"], {
+    errorMap: () => ({
+      message: "Please select an invoice status.",
+    }), // 👈 catches missing radio
+  }),
   date: z.string(),
 });
 
